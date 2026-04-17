@@ -1,0 +1,41 @@
+{
+  "name": "esusuchain",
+  "version": "1.0.0",
+  "description": "Decentralized Rotating Savings & Credit Association (ROSCA) on Ethereum — trustless, transparent, on-chain savings circles.",
+  "author": "Sayo-codes",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sayo-codes/EsusuChain"
+  },
+  "keywords": [
+    "ethereum",
+    "solidity",
+    "defi",
+    "rosca",
+    "esusu",
+    "savings",
+    "blockchain",
+    "web3",
+    "smart-contracts",
+    "hardhat"
+  ],
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "test:coverage": "npx hardhat coverage",
+    "node": "npx hardhat node",
+    "deploy:local": "npx hardhat run scripts/deploy.js --network localhost",
+    "deploy:sepolia": "npx hardhat run scripts/deploy.js --network sepolia",
+    "frontend:dev": "cd frontend && npm run dev",
+    "frontend:build": "cd frontend && npm run build"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.2",
+    "hardhat": "^2.19.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0",
+    "dotenv": "^16.0.0"
+  }
+}
