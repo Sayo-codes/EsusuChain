@@ -1,6 +1,6 @@
 # Contributing to EsusuChain 🔗
 
-Thank you for your interest in contributing to **EsusuChain** — a decentralized Rotating Savings & Credit Association (ROSCA) built on Ethereum!
+Thank you for your interest in contributing to **EsusuChain** — a decentralized Rotating Savings & Credit Association (ROSCA) built on **Stellar Soroban**!
 
 This project participates in the **[Drips Wave Program](https://www.drips.network/wave)**, which means contributors can earn rewards for their contributions.
 
@@ -30,10 +30,12 @@ Be respectful, inclusive, and constructive. We welcome contributors of all backg
 
 ### Prerequisites
 
-- Node.js v18+
-- npm v9+
+- [Rust](https://www.rust-lang.org/tools/install) (stable toolchain)
+- `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
+- [Stellar CLI](https://developers.stellar.org/docs/tools/stellar-cli): `cargo install --locked stellar-cli`
+- [Freighter Wallet](https://freighter.app/) (for frontend testing)
+- Node.js v18+ and npm v9+ (for SDK & frontend)
 - Git
-- MetaMask (for frontend testing)
 
 ### Setup
 
@@ -43,7 +45,7 @@ Be respectful, inclusive, and constructive. We welcome contributors of all backg
 git clone https://github.com/YOUR_USERNAME/EsusuChain.git
 cd EsusuChain
 
-# 3. Install dependencies
+# 3. Install JS dependencies (SDK + frontend tooling)
 npm install
 
 # 4. Install frontend dependencies
@@ -52,13 +54,17 @@ cd frontend && npm install && cd ..
 # 5. Copy environment file
 cp .env.example .env
 
-# 6. Start a local blockchain (in one terminal)
-npm run node
+# 6. Add the WASM build target
+rustup target add wasm32-unknown-unknown
 
-# 7. Deploy contracts (in another terminal)
-npm run deploy:local
+# 7. Build the Soroban contract
+stellar contract build
 
-# 8. Start the frontend (in a third terminal)
+# 8. Run contract tests
+cd contracts/soroban/esusu_pool
+cargo test
+
+# 9. Start the frontend dev server
 npm run frontend:dev
 ```
 
@@ -89,8 +95,8 @@ Issues are tagged with a complexity level that determines Drips Wave point rewar
 | Label | Points | Description |
 |-------|--------|-------------|
 | `complexity: trivial` | 100 pts | Small UI fixes, copy changes, config updates |
-| `complexity: medium` | 150 pts | New UI features, standard bug fixes, test additions |
-| `complexity: high` | 200 pts | New contract integrations, refactors, complex features |
+| `complexity: medium` | 150 pts | New UI features, standard bug fixes, Rust test additions |
+| `complexity: high` | 200 pts | New contract features, Freighter integration, refactors |
 
 ---
 
@@ -101,9 +107,10 @@ Issues are tagged with a complexity level that determines Drips Wave point rewar
    git checkout -b feature/your-feature-name
 
 2. Make your changes
-   - Write clean, commented code
+   - Write clean, commented Rust or JavaScript
    - Add or update tests where applicable
-   - Ensure existing tests still pass: npm test
+   - Ensure existing Rust tests pass: cd contracts/soroban/esusu_pool && cargo test
+   - Ensure frontend builds: npm run frontend:build
 
 3. Commit with a descriptive message
    git commit -m "feat: add pool search filter to homepage"
@@ -116,28 +123,29 @@ Issues are tagged with a complexity level that determines Drips Wave point rewar
 
 | Type | Format | Example |
 |------|--------|---------|
-| Feature | `feature/description` | `feature/pool-search-filter` |
-| Bug fix | `fix/description` | `fix/contribution-amount-validation` |
-| Docs | `docs/description` | `docs/sdk-usage-examples` |
-| Test | `test/description` | `test/factory-edge-cases` |
+| Feature | `feature/description` | `feature/freighter-wallet-connect` |
+| Bug fix | `fix/description` | `fix/contribute-auth-check` |
+| Docs | `docs/description` | `docs/stellar-cli-setup` |
+| Test | `test/description` | `test/cancel-pool-edge-cases` |
 
 ---
 
 ## Coding Standards
 
-### Solidity
+### Rust / Soroban
 
-- Follow the existing NatSpec comment style (`@notice`, `@param`, `@return`)
-- Use explicit visibility modifiers on all functions
-- Run `npm test` before submitting — all tests must pass
-- Do not introduce new external dependencies without discussion
+- Follow the existing NatSpec-style doc comments (`///`) on all public functions
+- Always use `require_auth()` on any function that changes state on behalf of a user
+- Use `panic_with_error!` with typed error enums — never raw `panic!`
+- Run `cargo test` before submitting — all tests must pass
+- Do not introduce new crate dependencies without prior discussion in an issue
 
 ### JavaScript / React
 
 - Use functional components and hooks
 - Keep components focused — one responsibility per component
 - Use descriptive variable names
-- Handle loading and error states for all async operations
+- Handle loading and error states for all async Soroban operations
 
 ### CSS
 
@@ -153,7 +161,7 @@ Issues are tagged with a complexity level that determines Drips Wave point rewar
 - **Describe your changes**: Explain what you changed and why
 - **Keep it focused**: One PR per issue — don't bundle unrelated changes
 - **Add screenshots**: For UI changes, include before/after screenshots
-- **Tests must pass**: `npm test` must exit with 0 errors
+- **Tests must pass**: `cargo test` must exit with 0 errors for contract changes
 - **No merge commits**: Rebase onto main if your branch is out of date
 
 ### PR Description Template
@@ -170,6 +178,8 @@ Closes #[issue number]
 
 ## Testing
 How did you test this? Include steps to reproduce.
+For Rust changes: paste `cargo test` output.
+For UI changes: describe Freighter interaction tested.
 
 ## Screenshots (if applicable)
 Before / After
@@ -182,20 +192,21 @@ Before / After
 ```
 EsusuChain/
 ├── contracts/
-│   ├── EsusuPool.sol         # Core ROSCA logic — contribute, withdraw, rotate
-│   └── EsusuFactory.sol      # Factory for deploying pools
-├── scripts/
-│   └── deploy.js             # Deployment script (local + Sepolia)
-├── test/
-│   └── EsusuPool.test.js     # Hardhat test suite
+│   └── soroban/
+│       └── esusu_pool/
+│           ├── Cargo.toml          # Soroban dependency config
+│           └── src/
+│               ├── lib.rs          # Core ROSCA contract logic (Rust)
+│               └── test.rs         # Soroban unit tests
 ├── sdk/
-│   └── index.js              # JavaScript SDK for external dApps
+│   └── index.js                   # JavaScript SDK (@stellar/stellar-sdk)
 ├── frontend/
 │   └── src/
-│       ├── App.jsx            # Main React dApp
-│       └── index.css          # Design system & CSS variables
-├── CONTRIBUTING.md            # This file
-├── FUNDING.json               # Drips Wave funding config
+│       ├── App.jsx                 # Main React dApp (Freighter wallet)
+│       └── index.css               # Design system & CSS variables
+├── Cargo.toml                      # Rust workspace
+├── CONTRIBUTING.md                 # This file
+├── FUNDING.json                    # Drips Wave funding config
 └── README.md
 ```
 
@@ -205,6 +216,7 @@ EsusuChain/
 
 - **Open a Discussion**: For questions about the codebase or architecture
 - **Comment on the Issue**: For clarification on a specific task
+- **Stellar Discord**: [discord.gg/stellar](https://discord.gg/stellar) — `#soroban` channel
 - **Drips Wave Support**: [drips.network/wave/support](https://www.drips.network/wave/support)
 
 We review PRs and issue applications within **48 hours**. Thanks for contributing to decentralized community finance! 🌍

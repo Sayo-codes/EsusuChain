@@ -1,7 +1,7 @@
 {
   "name": "esusuchain",
-  "version": "1.0.0",
-  "description": "Decentralized Rotating Savings & Credit Association (ROSCA) on Ethereum — trustless, transparent, on-chain savings circles.",
+  "version": "2.0.0",
+  "description": "Decentralized Rotating Savings & Credit Association (ROSCA) on Stellar Soroban — trustless, transparent, on-chain savings circles.",
   "author": "Sayo-codes",
   "license": "MIT",
   "repository": {
@@ -9,8 +9,9 @@
     "url": "https://github.com/Sayo-codes/EsusuChain"
   },
   "keywords": [
-    "ethereum",
-    "solidity",
+    "stellar",
+    "soroban",
+    "rust",
     "defi",
     "rosca",
     "esusu",
@@ -18,24 +19,22 @@
     "blockchain",
     "web3",
     "smart-contracts",
-    "hardhat"
+    "freighter"
   ],
   "scripts": {
-    "compile": "npx hardhat compile",
-    "test": "npx hardhat test",
-    "test:coverage": "npx hardhat coverage",
-    "node": "npx hardhat node",
-    "deploy:local": "npx hardhat run scripts/deploy.js --network localhost",
-    "deploy:sepolia": "npx hardhat run scripts/deploy.js --network sepolia",
+    "contract:build": "stellar contract build",
+    "contract:test": "cd contracts/soroban/esusu_pool && cargo test",
+    "contract:optimize": "stellar contract optimize --wasm contracts/soroban/esusu_pool/target/wasm32-unknown-unknown/release/esusu_pool.wasm",
+    "contract:deploy:testnet": "stellar contract deploy --wasm contracts/soroban/esusu_pool/target/wasm32-unknown-unknown/release/esusu_pool.optimized.wasm --source deployer --network testnet",
     "frontend:dev": "cd frontend && npm run dev",
-    "frontend:build": "cd frontend && npm run build"
+    "frontend:build": "cd frontend && npm run build",
+    "lint": "cd contracts/soroban/esusu_pool && cargo clippy -- -D warnings"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^6.1.2",
-    "hardhat": "^2.19.0"
+    "vite": "^5.0.0"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.0",
+    "@stellar/stellar-sdk": "^12.0.0",
     "dotenv": "^16.0.0"
   }
 }

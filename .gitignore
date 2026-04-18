@@ -1,11 +1,36 @@
+# ─── Node / JS ─────────────────────────────────────────────────────────────
 node_modules/
-.env
-coverage/
-coverage.json
-typechain-types/
-artifacts/
-cache/
-deployments.json
 frontend/node_modules/
 frontend/dist/
 frontend/.env
+
+# ─── Environment ────────────────────────────────────────────────────────────
+.env
+.env.local
+
+# ─── Rust / Cargo ───────────────────────────────────────────────────────────
+target/
+**/*.wasm
+!contracts/**/*.optimized.wasm
+
+# ─── Soroban / Stellar CLI ──────────────────────────────────────────────────
+.soroban/
+.stellar/
+
+# ─── Deployment artifacts ───────────────────────────────────────────────────
+# Keep deployments/ tracked (used to document live contract IDs)
+# deployments/
+
+# ─── Old Hardhat artifacts (no longer used) ─────────────────────────────────
+artifacts/
+cache/
+typechain-types/
+coverage/
+coverage.json
+deployments.json
+
+# ─── Misc ───────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.log
+temp_issue_body.txt

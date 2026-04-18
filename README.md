@@ -1,13 +1,13 @@
 # EsusuChain 🔗
 
-> **Decentralized Rotating Savings & Credit Association (ROSCA) on Ethereum**
+> **Decentralized Rotating Savings & Credit Association (ROSCA) on the Stellar Network**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
-[![Solidity](https://img.shields.io/badge/Solidity-0.8.19-blue.svg)](https://soliditylang.org/)
-[![Hardhat](https://img.shields.io/badge/Built%20with-Hardhat-yellow.svg)](https://hardhat.org/)
-[![Tests](https://img.shields.io/badge/Tests-Passing-green.svg)](#testing)
+[![Stellar](https://img.shields.io/badge/Stellar-Soroban-blue.svg)](https://stellar.org/soroban)
+[![Rust](https://img.shields.io/badge/Smart%20Contracts-Rust%20%2F%20Soroban-orange.svg)](https://soroban.stellar.org/)
+[![Freighter](https://img.shields.io/badge/Wallet-Freighter-blueviolet.svg)](https://freighter.app/)
 
-EsusuChain brings the traditional **African Esusu savings model** to the blockchain — transparent, automated, and fully decentralized. No banks, no middlemen, just community.
+EsusuChain brings the traditional **African Esusu savings model** to the blockchain — transparent, automated, and fully decentralized. No banks, no middlemen, just community — powered by **Stellar Soroban smart contracts**.
 
 ---
 
@@ -15,40 +15,51 @@ EsusuChain brings the traditional **African Esusu savings model** to the blockch
 
 **Esusu** (also called *susu*, *tontine*, or *chama*) is a centuries-old African communal savings practice where a group of people contribute a fixed amount periodically, and each round one member collects the entire pot. Over time, every member receives the full pot once.
 
-EsusuChain makes this **trustless and transparent** by encoding all the rules into a smart contract on Ethereum.
+EsusuChain makes this **trustless and transparent** by encoding all the rules into a Soroban smart contract on Stellar — settling in seconds at fractions of a cent.
+
+---
+
+## Why Stellar?
+
+| Feature | Stellar Advantage |
+|---------|------------------|
+| ⚡ Speed | 3–5 second finality vs. minutes on EVM chains |
+| 💰 Cost | ~$0.00001 per transaction — ideal for micro-savings |
+| 🪙 Native Assets | Built-in token primitives via the Stellar Asset Contract (SAC) |
+| 🦀 Soroban | Rust smart contracts — memory safe, auditable, WASM-compiled |
+| 🌍 Accessibility | Designed for the unbanked — low cost, mobile-first |
 
 ---
 
 ## Features
 
-- 🏦 **Trustless ROSCA** — Smart contract enforces contribution rules, no admin can steal funds
-- 🔄 **Automatic rotation** — Winner is selected in join order, fairly and transparently
+- 🏦 **Trustless ROSCA** — Soroban contract enforces contribution rules; no admin can steal funds
+- 🔄 **Automatic rotation** — Winner selected in join order, deterministically and transparently
 - ⏱ **Cycle management** — Configurable round durations (days, weeks, months)
-- 🏭 **Factory pattern** — One `EsusuFactory` deploys unlimited `EsusuPool` contracts
-- 🔒 **Security** — ReentrancyGuard, Pausable, proper access control (OpenZeppelin)
-- 💸 **Withdraw anytime** — Winners can withdraw their pot at any time after winning
-- 🌐 **Full dApp** — React frontend with MetaMask integration
-- 📦 **JavaScript SDK** — Import ABIs and helpers into your own dApp
+- 🪙 **Stellar Asset Contract** — Contributions paid in any Stellar token (XLM, USDC, etc.)
+- 🔒 **Auth-required actions** — Every sensitive function uses `require_auth()` (Soroban auth framework)
+- 🌐 **Full dApp** — React frontend with **Freighter** wallet integration
+- 📦 **JavaScript SDK** — `@stellar/stellar-sdk`-powered helpers for your own dApp
 
 ---
 
 ## Architecture
 
 ```
-EsusuFactory (deploy once)
-    └── createPool() → EsusuPool (one per savings circle)
-                           ├── join()
-                           ├── contribute()  [payable]
-                           ├── withdraw()
-                           └── finalizeRound() [admin]
+EsusuPool (Soroban contract)
+    ├── initialize()   → Sets up pool parameters, admin, token
+    ├── join()         → Member joins; auto-starts when full
+    ├── contribute()   → Members pay SAC token for current round
+    ├── finalize_round() → Admin distributes pot to round winner
+    └── cancel_pool()  → Emergency admin cancel
 ```
 
 ### Pool Lifecycle
 
 ```
-Open → (all members join) → Active → (rounds complete) → Completed
-                                                ↓ (emergency)
-                                           Cancelled
+Open → (all members join, pool auto-starts) → Active → (all rounds complete) → Completed
+                                                              ↓ (emergency)
+                                                          Cancelled
 ```
 
 ---
@@ -57,9 +68,10 @@ Open → (all members join) → Active → (rounds complete) → Completed
 
 ### Prerequisites
 
-- Node.js v18+
-- npm v9+
-- MetaMask browser extension
+- [Rust](https://www.rust-lang.org/tools/install) + `wasm32-unknown-unknown` target
+- [Stellar CLI](https://developers.stellar.org/docs/tools/stellar-cli) (`cargo install --locked stellar-cli`)
+- [Freighter Wallet](https://freighter.app/) browser extension
+- Node.js v18+ (for SDK & frontend)
 
 ### 1. Clone & Install
 
@@ -69,53 +81,68 @@ cd EsusuChain
 npm install
 ```
 
-### 2. Run Local Blockchain
+### 2. Add Rust WASM Target
 
 ```bash
-npm run node
-# Starts a local Hardhat node at http://127.0.0.1:8545
+rustup target add wasm32-unknown-unknown
 ```
 
-### 3. Deploy Contracts
+### 3. Build the Soroban Contract
 
 ```bash
-# In a new terminal:
-npm run deploy:local
-# Outputs contract addresses and saves to deployments.json
+stellar contract build
+# Output: contracts/soroban/esusu_pool/target/wasm32-unknown-unknown/release/esusu_pool.wasm
 ```
 
-### 4. Start the Frontend
+### 4. Run Contract Tests
+
+```bash
+cd contracts/soroban/esusu_pool
+cargo test
+```
+
+### 5. Deploy to Stellar Testnet
+
+```bash
+# Fund a testnet account
+stellar keys generate --global deployer --network testnet
+
+# Deploy the contract
+stellar contract deploy \
+  --wasm contracts/soroban/esusu_pool/target/wasm32-unknown-unknown/release/esusu_pool.wasm \
+  --source deployer \
+  --network testnet
+# → Contract ID: C...
+```
+
+### 6. Start the Frontend
 
 ```bash
 npm run frontend:dev
-# Opens at http://localhost:5173
+# Vite dev server at http://localhost:5173
+# Connect Freighter to Stellar Testnet
 ```
-
-### 5. Connect MetaMask
-
-- Add network: `localhost:8545`, Chain ID `31337`
-- Import a test account using a private key from the Hardhat node output
 
 ---
 
 ## Testing
 
 ```bash
-npm test
+cd contracts/soroban/esusu_pool
+cargo test
 ```
 
 The test suite covers:
 
-| Category          | Tests |
-|-------------------|-------|
-| Deployment        | Parameter validation, invalid inputs |
-| Joining           | Join flow, auto-start, double-join prevention |
-| Contributing      | Correct amounts, double-contribution prevention |
-| Round completion  | Pot calculation, winner assignment, round advancement |
-| Withdrawal        | Balance transfer, double-withdrawal prevention |
-| Full cycle        | 4-member, 4-round complete lifecycle |
-| Admin actions     | `finalizeRound` after deadline |
-| Factory           | Pool creation, tracking, events |
+| Category | Tests |
+|----------|-------|
+| Initialization | Parameter validation, storage setup |
+| Joining | Join flow, auto-start when full, double-join prevention |
+| Contributing | Correct token transfer, round tracking |
+| Round finalization | Pot calculation, winner payout, round advancement |
+| Full cycle | 2-member, 2-round complete lifecycle |
+| Admin actions | `finalize_round` authorization, `cancel_pool` |
+| Access control | Non-admin action rejection |
 
 ---
 
@@ -125,10 +152,31 @@ The test suite covers:
 # 1. Copy and fill environment variables
 cp .env.example .env
 
-# 2. Deploy to Sepolia testnet
-npm run deploy:sepolia
+# 2. Generate / fund a testnet keypair
+stellar keys generate --global deployer --network testnet
 
-# 3. Update frontend/src/App.jsx with the new factory address
+# 3. Build the contract
+stellar contract build
+
+# 4. Deploy
+stellar contract deploy \
+  --wasm contracts/soroban/esusu_pool/target/wasm32-unknown-unknown/release/esusu_pool.wasm \
+  --source deployer \
+  --network testnet \
+  --alias esusu_pool
+
+# 5. Initialize the pool
+stellar contract invoke \
+  --id esusu_pool \
+  --source deployer \
+  --network testnet \
+  -- initialize \
+  --admin <YOUR_PUBLIC_KEY> \
+  --token <SAC_TOKEN_ADDRESS> \
+  --name "My Savings Circle" \
+  --contribution_amt 100000000 \
+  --cycle_duration 604800 \
+  --max_members 5
 ```
 
 ---
@@ -136,39 +184,25 @@ npm run deploy:sepolia
 ## SDK Usage
 
 ```javascript
-import { EsusuChainSDK, ESUSU_FACTORY_ABI, ESUSU_POOL_ABI } from './sdk/index.js'
-import { ethers } from 'ethers'
+import { EsusuChainSDK } from './sdk/index.js'
+import { SorobanRpc } from '@stellar/stellar-sdk'
 
-const provider = new ethers.BrowserProvider(window.ethereum)
-const signer   = await provider.getSigner()
+const server = new SorobanRpc.Server('https://soroban-testnet.stellar.org')
+const sdk = new EsusuChainSDK(server, 'C...YOUR_CONTRACT_ID...', 'testnet')
 
-const sdk = new EsusuChainSDK(provider, FACTORY_ADDRESS)
+// Build a join transaction (sign with Freighter in the frontend)
+const tx = await sdk.buildJoinTx('G...MEMBER_PUBLIC_KEY...')
 
-// Create a pool
-const poolAddress = await sdk.createPool(
-  signer,
-  "My Savings Circle",
-  ethers.parseEther("0.1"),  // 0.1 ETH per round
-  7,                          // 7-day cycles
-  5                           // 5 members
-)
+// Sign with Freighter
+const signedXdr = await window.freighter.signTransaction(tx.toXDR(), {
+  network: 'TESTNET',
+  networkPassphrase: 'Test SDF Network ; September 2015',
+})
 
-// Get all pools
-const pools = await sdk.getAllPools()
-
-// Get pool info
-const info = await sdk.getPoolInfo(poolAddress)
-console.log(info)
-// { name, contributionAmount, status, currentRound, ... }
-
-// Join a pool
-await sdk.joinPool(signer, poolAddress)
-
-// Contribute
-await sdk.contribute(signer, poolAddress, ethers.parseEther("0.1"))
-
-// Withdraw winnings
-await sdk.withdraw(signer, poolAddress)
+// Submit
+const { Transaction } = await import('@stellar/stellar-sdk')
+const signedTx = new Transaction(signedXdr, 'Test SDF Network ; September 2015')
+await sdk.submitTransaction(signedTx)
 ```
 
 ---
@@ -178,21 +212,21 @@ await sdk.withdraw(signer, poolAddress)
 ```
 EsusuChain/
 ├── contracts/
-│   ├── EsusuPool.sol         # Core ROSCA logic
-│   └── EsusuFactory.sol      # Factory for deploying pools
-├── scripts/
-│   └── deploy.js             # Deployment script
-├── test/
-│   └── EsusuPool.test.js     # Full test suite
+│   └── soroban/
+│       └── esusu_pool/
+│           ├── Cargo.toml          # Soroban dependency config
+│           └── src/
+│               ├── lib.rs          # Core ROSCA contract logic (Rust)
+│               └── test.rs         # Soroban unit tests
 ├── sdk/
-│   └── index.js              # JavaScript SDK
-├── frontend/                  # Vite + React dApp
+│   └── index.js                   # JavaScript SDK (@stellar/stellar-sdk)
+├── frontend/                       # Vite + React dApp
 │   └── src/
-│       ├── App.jsx            # Main application
-│       └── index.css          # Design system
-├── FUNDING.json               # Drips funding config
-├── .env.example               # Environment template
-├── hardhat.config.js
+│       ├── App.jsx                 # Main application (Freighter integration)
+│       └── index.css               # Design system
+├── Cargo.toml                      # Rust workspace
+├── FUNDING.json                    # Drips funding config
+├── .env.example                    # Environment template
 └── README.md
 ```
 
@@ -200,27 +234,19 @@ EsusuChain/
 
 ## Smart Contract Reference
 
-### EsusuFactory
+### EsusuPool — Function Reference
 
-| Function | Description |
-|----------|-------------|
-| `createPool(name, amount, duration, members)` | Deploy a new savings circle |
-| `getAllPools()` | Returns all pool addresses |
-| `getPoolsByCreator(addr)` | Returns pools created by address |
-| `getTotalPools()` | Total pools deployed |
-
-### EsusuPool
-
-| Function | Description |
-|----------|-------------|
-| `join()` | Join the pool (when Open) |
-| `contribute()` | Pay your contribution for this round (payable) |
-| `withdraw()` | Withdraw pending winnings |
-| `finalizeRound()` | Admin: close round after deadline |
-| `cancelPool(reason)` | Admin: emergency cancel + refund |
-| `getPoolInfo()` | Returns all pool state in one call |
-| `getMemberStatus(addr)` | Returns member's contribution/win status |
-| `getRoundInfo()` | Returns current round details |
+| Function | Auth Required | Description |
+|----------|---------------|-------------|
+| `initialize(admin, token, name, contribution_amt, cycle_duration, max_members)` | admin | Deploy and configure a savings pool |
+| `join(member)` | member | Join the pool while status is Open |
+| `contribute(member)` | member | Transfer token contribution for current round |
+| `finalize_round(caller)` | admin | Pay out the round winner and advance round |
+| `cancel_pool(caller)` | admin | Emergency cancel the pool |
+| `get_status()` | — | Returns current PoolStatus enum |
+| `get_members()` | — | Returns Vec of member addresses |
+| `get_current_round()` | — | Returns current round index |
+| `get_contribution_amount()` | — | Returns contribution amount (in stroops) |
 
 ---
 
@@ -230,9 +256,11 @@ Contributions are welcome! Please open an issue first to discuss what you'd like
 
 1. Fork the repository
 2. Create your feature branch: `git checkout -b feature/my-feature`
-3. Commit your changes: `git commit -m 'Add some feature'`
+3. Commit your changes: `git commit -m 'feat: describe your change'`
 4. Push to the branch: `git push origin feature/my-feature`
 5. Open a Pull Request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
 
 ---
 
@@ -244,7 +272,7 @@ Contributions are welcome! Please open an issue first to discuss what you'd like
 
 ## Acknowledgements
 
-- [OpenZeppelin](https://openzeppelin.com/) for battle-tested contract security primitives
-- [Hardhat](https://hardhat.org/) for the development environment
-- [ethers.js](https://ethers.org/) for Web3 interactions
+- [Stellar Development Foundation](https://stellar.org/) for Soroban and the Stellar network
+- [Soroban SDK](https://soroban.stellar.org/) for the Rust smart contract framework
+- [Freighter](https://freighter.app/) for the Stellar wallet browser extension
 - The African communities who developed Esusu long before blockchain existed 🌍

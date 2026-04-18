@@ -1,182 +1,170 @@
 $repo = "Sayo-codes/EsusuChain"
+$tempFile = "temp_issue_body.txt"
 
-# Issue 1 - Trivial
-$body1 = @"
+# Issue 1 - Trivial: Freighter wallet connect button UX
+$body1 = '
 ## Summary
-The pool contract address is displayed in the Pool Detail view, but users cannot easily copy it. Add a copy icon button next to the address that copies it to the clipboard and shows a confirmation toast.
+The "Connect Wallet" button in the frontend does not display the connected account address after Freighter is connected. Users cannot confirm which Stellar account is active. Add a truncated address display (e.g. `G3XK...F9QP`) next to the button after connection, with a copy-on-click that shows a brief success toast.
 
 ## Acceptance Criteria
-- [ ] Clicking the button copies the full address to clipboard
-- [ ] A success toast or tooltip confirms the action
-- [ ] Works across Chrome, Firefox, and Edge
+- [ ] After connecting Freighter, button area shows truncated public key (first 4 + last 4 chars)
+- [ ] Clicking the address copies the full public key to clipboard
+- [ ] A toast notification confirms copy success
+- [ ] Works on Chrome and Firefox with the Freighter extension installed
 
 ## Files to Edit
-- ``frontend/src/App.jsx`` (PoolDetail component around the address display)
+- `frontend/src/App.jsx` (wallet connect button component)
+- `frontend/src/index.css` (address pill styling)
 
 ## Complexity
-``complexity: trivial``
-"@
-
-gh issue create --repo $repo `
-  --title "Add copy-to-clipboard button for pool contract addresses" `
-  --body $body1 `
-  --label "help wanted,good first issue,complexity: trivial"
-
+`complexity: trivial`
+'
+Set-Content -Path $tempFile -Value $body1 -Encoding UTF8
+gh issue create --repo $repo --title "Display connected Freighter wallet address after wallet connect" --body-file $tempFile --label "help wanted,good first issue,complexity: trivial"
 Start-Sleep -Seconds 1
 
-# Issue 2 - Trivial
-$body2 = @"
+# Issue 2 - Trivial: Add Stellar/Soroban Open Graph meta tags
+$body2 = '
 ## Summary
-The frontend HTML title and meta tags reference EsusuChain but the Open Graph image (og:image) meta tag is missing, meaning link previews on Twitter/Discord/Telegram show no image. Add a proper og:image and twitter:card meta tags.
+The frontend HTML head is missing Open Graph and Twitter card meta tags. When the dApp link is shared on Discord, Telegram, or Twitter, no preview image or description appears. Add proper OG tags that reflect the Stellar/Soroban branding.
 
 ## Acceptance Criteria
-- [ ] ``og:image`` meta tag added pointing to a relevant image or SVG
-- [ ] ``twitter:card`` set to ``summary_large_image``
-- [ ] ``twitter:title`` and ``twitter:description`` added
+- [ ] `og:title` set to "EsusuChain — Soroban ROSCA on Stellar"
+- [ ] `og:description` set with a clear one-line summary
+- [ ] `og:image` pointing to a hosted preview image or SVG in `/public`
+- [ ] `twitter:card` set to `summary_large_image`
+- [ ] `twitter:title` and `twitter:description` added
 
 ## Files to Edit
-- ``frontend/index.html``
+- `frontend/index.html`
+- `frontend/public/` (add preview image asset)
 
 ## Complexity
-``complexity: trivial``
-"@
-
-gh issue create --repo $repo `
-  --title "Add Open Graph and Twitter card meta tags to frontend" `
-  --body $body2 `
-  --label "help wanted,good first issue,complexity: trivial"
-
+`complexity: trivial`
+'
+Set-Content -Path $tempFile -Value $body2 -Encoding UTF8
+gh issue create --repo $repo --title "Add Stellar-branded Open Graph and Twitter card meta tags to frontend" --body-file $tempFile --label "help wanted,good first issue,complexity: trivial"
 Start-Sleep -Seconds 1
 
-# Issue 3 - Medium
-$body3 = @"
+# Issue 3 - Medium: Pool search and status filter
+$body3 = '
 ## Summary
-The homepage shows all pools in a grid but there is no way to filter or search them. As the number of pools grows, users need to find specific circles quickly. Add a search bar and status filter tabs (All / Open / Active / Completed).
+The homepage shows all pools in a grid but there is no way to filter or search them. As the number of savings circles grows, users need to find specific pools quickly. Add a search bar and status filter tabs (All / Open / Active / Completed) that filter the pool grid in real time.
 
 ## Acceptance Criteria
-- [ ] Text search filters pools by name (case-insensitive)
+- [ ] Text search filters pools by name (case-insensitive, no page reload)
 - [ ] Status filter buttons: All, Open, Active, Completed
-- [ ] Filters update the pool grid in real time with no page reload
-- [ ] Shows a "No results" empty state when filters match nothing
+- [ ] Filters update the pool grid instantly using React state
+- [ ] Shows a "No pools found" empty state when filters match nothing
 - [ ] Filter state resets when navigating back from pool detail
 
 ## Files to Edit
-- ``frontend/src/App.jsx``
-- ``frontend/src/index.css`` (for filter button styles)
+- `frontend/src/App.jsx`
+- `frontend/src/index.css` (filter button and search bar styles)
 
 ## Complexity
-``complexity: medium``
-"@
-
-gh issue create --repo $repo `
-  --title "Add search and status filter to the pool listing page" `
-  --body $body3 `
-  --label "help wanted,complexity: medium"
-
+`complexity: medium`
+'
+Set-Content -Path $tempFile -Value $body3 -Encoding UTF8
+gh issue create --repo $repo --title "Add search and status filter to the pool listing page" --body-file $tempFile --label "help wanted,complexity: medium"
 Start-Sleep -Seconds 1
 
-# Issue 4 - Medium
-$body4 = @"
+# Issue 4 - Medium: Live round countdown timer
+$body4 = '
 ## Summary
-Active pools show a time remaining ("Xh"), but it is static and doesn't update while the user has the page open. Replace this with a live countdown timer that ticks every second so users know exactly when a round deadline is.
+Active pools display a static "Xh remaining" label that does not tick while the user has the page open. Replace it with a live countdown timer using the `roundStartTime` and `cycleDuration` values from the Soroban contract, ticking every second via `setInterval`.
 
 ## Acceptance Criteria
-- [ ] Countdown displayed as ``Xd Xh Xm Xs`` format
-- [ ] Timer updates every second using ``setInterval``
-- [ ] Cleans up the interval on component unmount to avoid memory leaks
-- [ ] When time hits 0, displays "Round ended – awaiting finalization"
+- [ ] Countdown displayed as `Xd Xh Xm Xs` format
+- [ ] Timer updates every second using `setInterval`
+- [ ] Interval is cleaned up on component unmount (no memory leaks)
+- [ ] When time hits 0, displays "Round ended — awaiting finalization"
+- [ ] Timer derives deadline from on-chain `round_start` + `cycle_duration` ledger values
 
 ## Files to Edit
-- ``frontend/src/App.jsx`` (PoolDetail and PoolCard components)
+- `frontend/src/App.jsx` (PoolDetail and PoolCard components)
 
 ## Complexity
-``complexity: medium``
-"@
-
-gh issue create --repo $repo `
-  --title "Implement live countdown timer for active round deadlines" `
-  --body $body4 `
-  --label "help wanted,complexity: medium"
-
+`complexity: medium`
+'
+Set-Content -Path $tempFile -Value $body4 -Encoding UTF8
+gh issue create --repo $repo --title "Implement live countdown timer for active Soroban round deadlines" --body-file $tempFile --label "help wanted,complexity: medium"
 Start-Sleep -Seconds 1
 
-# Issue 5 - Medium
-$body5 = @"
+# Issue 5 - Medium: Rust tests for cancel_pool and auth edge cases
+$body5 = '
 ## Summary
-The test suite covers the happy path well but is missing edge case tests for the ``cancelPool`` function and for the ``pause``/``unpause`` admin controls. Add tests for these scenarios.
+The Soroban test suite covers the happy-path join/contribute/finalize flow but is missing tests for `cancel_pool` and for unauthorized-caller rejection. Add comprehensive Rust unit tests using the Soroban test utilities.
 
 ## Acceptance Criteria
-- [ ] Test: ``cancelPool`` distributes balance equally among members
-- [ ] Test: ``cancelPool`` reverts when called on a Completed pool
-- [ ] Test: paused pool rejects ``join()`` and ``contribute()``
-- [ ] Test: ``unpause`` restores normal functionality
-- [ ] All new tests pass with ``npm test``
+- [ ] Test: `cancel_pool` transitions status to `Cancelled`
+- [ ] Test: calling `cancel_pool` twice panics with `PoolAlreadyCancelled`
+- [ ] Test: non-admin calling `finalize_round` panics with `Unauthorized`
+- [ ] Test: non-admin calling `cancel_pool` panics with `Unauthorized`
+- [ ] Test: joining a Cancelled pool panics with `PoolNotOpen`
+- [ ] All tests pass with `cargo test`
 
 ## Files to Edit
-- ``test/EsusuPool.test.js``
+- `contracts/soroban/esusu_pool/src/test.rs`
 
 ## Complexity
-``complexity: medium``
-"@
-
-gh issue create --repo $repo `
-  --title "Add missing tests for cancelPool, pause, and unpause admin functions" `
-  --body $body5 `
-  --label "help wanted,complexity: medium"
-
+`complexity: medium`
+'
+Set-Content -Path $tempFile -Value $body5 -Encoding UTF8
+gh issue create --repo $repo --title "Add Soroban Rust tests for cancel_pool and unauthorized caller scenarios" --body-file $tempFile --label "help wanted,complexity: medium"
 Start-Sleep -Seconds 1
 
-# Issue 6 - High
-$body6 = @"
+# Issue 6 - High: Freighter wallet full integration
+$body6 = '
 ## Summary
-The frontend is currently hardcoded to a local Hardhat node address. Deploy the contracts to the Sepolia testnet, verify them on Etherscan, and update the frontend + README to connect to the live testnet deployment so anyone can try EsusuChain without running a local node.
+The frontend currently uses placeholder functions for Soroban transaction signing. Implement full **Freighter wallet integration** using `@stellar/freighter-api` so users can sign `join`, `contribute`, and `finalize_round` transactions directly in their browser. This is the most critical frontend feature for the dApp to be functional.
 
 ## Acceptance Criteria
-- [ ] ``EsusuFactory`` deployed and verified on Sepolia Etherscan
-- [ ] ``frontend/src/App.jsx`` updated with the live Sepolia factory address
-- [ ] A ``deployments/`` folder added containing ``sepolia.json`` with deployed addresses and block numbers
-- [ ] README updated with Sepolia contract address and Etherscan link
-- [ ] Frontend vite config updated to default to Sepolia network
+- [ ] `@stellar/freighter-api` installed and imported
+- [ ] "Connect Wallet" button requests Freighter access and retrieves the public key
+- [ ] `join()` UI button builds a Soroban transaction, passes it to Freighter to sign, and submits to the RPC
+- [ ] `contribute()` UI button does the same
+- [ ] Pending and success/error states are handled with loading spinners and toasts
+- [ ] Works on Stellar Testnet end-to-end (join → contribute → round visible)
 
 ## Files to Edit
-- ``scripts/deploy.js``
-- ``frontend/src/App.jsx``
-- ``hardhat.config.js``
-- ``README.md``
-- New: ``deployments/sepolia.json``
+- `frontend/src/App.jsx`
+- `frontend/package.json` (add `@stellar/freighter-api`)
+- `sdk/index.js` (use `buildJoinTx`, `buildContributeTx` helpers)
 
 ## Complexity
-``complexity: high``
-"@
-
-gh issue create --repo $repo `
-  --title "Deploy contracts to Sepolia testnet and update frontend to use live deployment" `
-  --body $body6 `
-  --label "help wanted,complexity: high"
-
+`complexity: high`
+'
+Set-Content -Path $tempFile -Value $body6 -Encoding UTF8
+gh issue create --repo $repo --title "Implement Freighter wallet signing for Soroban transactions in frontend" --body-file $tempFile --label "help wanted,complexity: high"
 Start-Sleep -Seconds 1
 
-# Issue 7 - High
-$body7 = @"
+# Issue 7 - High: Deploy to Stellar Testnet and update frontend
+$body7 = '
 ## Summary
-The frontend currently polls for state by re-calling ``getPoolInfo()`` after every transaction. This is inefficient and misses updates made by other users in real time. Refactor the data loading to use ethers.js event listeners (``Contributed``, ``RoundCompleted``, ``MemberJoined`` events) so the UI updates automatically when the contract state changes.
+The contract has never been deployed to a live public testnet. Deploy the compiled Soroban WASM to **Stellar Testnet**, initialize a demo pool, and update the frontend and README so anyone can try EsusuChain without running a local node.
 
 ## Acceptance Criteria
-- [ ] Subscribe to ``MemberJoined``, ``Contributed``, ``RoundCompleted``, ``Withdrawal`` events on the active pool
-- [ ] UI updates automatically without requiring a page refresh or manual "Refresh" button click
-- [ ] Event listeners are cleaned up properly on component unmount
-- [ ] Falls back gracefully if the provider does not support subscriptions (e.g., HTTP provider)
+- [ ] `esusu_pool.wasm` compiled and optimized with `stellar contract optimize`
+- [ ] Contract deployed and initialized on Stellar Testnet (contract ID documented)
+- [ ] A `deployments/testnet.json` file added with contract ID, init parameters, and deployer address
+- [ ] `frontend/src/App.jsx` updated with the live testnet Contract ID as default
+- [ ] `VITE_CONTRACT_ID` documented in `.env.example`
+- [ ] README updated with the live contract ID and Stellar Expert explorer link
+- [ ] Frontend Vite config defaults to Testnet RPC URL
 
-## Files to Edit
-- ``frontend/src/App.jsx`` (PoolDetail component)
+## Files to Edit / Add
+- `deployments/testnet.json` (new)
+- `frontend/src/App.jsx`
+- `.env.example`
+- `README.md`
 
 ## Complexity
-``complexity: high``
-"@
+`complexity: high`
+'
+Set-Content -Path $tempFile -Value $body7 -Encoding UTF8
+gh issue create --repo $repo --title "Deploy EsusuPool Soroban contract to Stellar Testnet and connect frontend" --body-file $tempFile --label "help wanted,complexity: high"
+Start-Sleep -Seconds 1
 
-gh issue create --repo $repo `
-  --title "Replace polling with real-time ethers.js event listeners in Pool Detail view" `
-  --body $body7 `
-  --label "help wanted,complexity: high"
-
-Write-Host "All issues created successfully!"
+Remove-Item -Path $tempFile -Force -ErrorAction SilentlyContinue
+Write-Host "All 7 Stellar/Soroban issues created successfully!"
