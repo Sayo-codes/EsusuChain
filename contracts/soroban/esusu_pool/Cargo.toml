@@ -3,8 +3,8 @@ name = "esusu-pool"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "EsusuChain ROSCA pool — Soroban smart contract on Stellar"
-repository = "https://github.com/Sayo-codes/EsusuChain"
+description = "EsusuStellar ROSCA pool — Soroban smart contract on Stellar"
+repository = "https://github.com/Sayo-codes/EsusuStellar"
 
 [lib]
 crate-type = ["cdylib"]

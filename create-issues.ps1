@@ -1,4 +1,4 @@
-$repo = "Sayo-codes/EsusuChain"
+$repo = "Sayo-codes/EsusuStellar"
 $tempFile = "temp_issue_body.txt"
 
 # Issue 1 - Trivial: Freighter wallet connect button UX

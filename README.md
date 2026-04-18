@@ -1,13 +1,13 @@
-# EsusuChain 🔗
+# EsusuStellar 🔗
 
-> **Decentralized Rotating Savings & Credit Association (ROSCA) on the Stellar Network**
+> **Decentralized Rotating Savings & Credit Association (ROSCA) on Stellar Soroban**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 [![Stellar](https://img.shields.io/badge/Stellar-Soroban-blue.svg)](https://stellar.org/soroban)
 [![Rust](https://img.shields.io/badge/Smart%20Contracts-Rust%20%2F%20Soroban-orange.svg)](https://soroban.stellar.org/)
 [![Freighter](https://img.shields.io/badge/Wallet-Freighter-blueviolet.svg)](https://freighter.app/)
 
-EsusuChain brings the traditional **African Esusu savings model** to the blockchain — transparent, automated, and fully decentralized. No banks, no middlemen, just community — powered by **Stellar Soroban smart contracts**.
+EsusuStellar brings the traditional **African Esusu savings model** to the blockchain — transparent, automated, and fully decentralized. No banks, no middlemen, just community — powered by **Stellar Soroban smart contracts**.
 
 ---
 
@@ -76,8 +76,8 @@ Open → (all members join, pool auto-starts) → Active → (all rounds complet
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/Sayo-codes/EsusuChain.git
-cd EsusuChain
+git clone https://github.com/Sayo-codes/EsusuStellar.git
+cd EsusuStellar
 npm install
 ```
 

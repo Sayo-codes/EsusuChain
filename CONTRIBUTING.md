@@ -1,6 +1,6 @@
-# Contributing to EsusuChain 🔗
+# Contributing to EsusuStellar 🔗
 
-Thank you for your interest in contributing to **EsusuChain** — a decentralized Rotating Savings & Credit Association (ROSCA) built on **Stellar Soroban**!
+Thank you for your interest in contributing to **EsusuStellar** — a decentralized Rotating Savings & Credit Association (ROSCA) built on **Stellar Soroban**!
 
 This project participates in the **[Drips Wave Program](https://www.drips.network/wave)**, which means contributors can earn rewards for their contributions.
 
@@ -42,8 +42,8 @@ Be respectful, inclusive, and constructive. We welcome contributors of all backg
 ```bash
 # 1. Fork the repository on GitHub
 # 2. Clone your fork
-git clone https://github.com/YOUR_USERNAME/EsusuChain.git
-cd EsusuChain
+git clone https://github.com/YOUR_USERNAME/EsusuStellar.git
+cd EsusuStellar
 
 # 3. Install JS dependencies (SDK + frontend tooling)
 npm install
@@ -74,7 +74,7 @@ npm run frontend:dev
 
 ### Finding Issues
 
-1. Browse [open issues](https://github.com/Sayo-codes/EsusuChain/issues) labelled `help wanted` or `good first issue`
+1. Browse [open issues](https://github.com/Sayo-codes/EsusuStellar/issues) labelled `help wanted` or `good first issue`
 2. Look for issues tagged with the **Drips Wave** label if you are participating through the Wave Program
 3. Comment on an issue before starting work to avoid conflicts with other contributors
 4. Wait for a maintainer to assign it to you before opening a PR

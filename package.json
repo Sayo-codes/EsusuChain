@@ -1,12 +1,12 @@
 {
-  "name": "esusuchain",
+  "name": "esusustellar",
   "version": "2.0.0",
-  "description": "Decentralized Rotating Savings & Credit Association (ROSCA) on Stellar Soroban — trustless, transparent, on-chain savings circles.",
+  "description": "EsusuStellar — Decentralized Rotating Savings & Credit Association (ROSCA) on Stellar Soroban. Trustless, transparent, on-chain savings circles.",
   "author": "Sayo-codes",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Sayo-codes/EsusuChain"
+    "url": "https://github.com/Sayo-codes/EsusuStellar"
   },
   "keywords": [
     "stellar",
